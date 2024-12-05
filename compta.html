@@ -34,6 +34,9 @@
             cursor: pointer;
             transition: background-color 0.3s;
         }
+        .button-group button:hover {
+            background-color: #555;
+        }
         .form-container {
             max-width: 600px;
             margin: 20px auto;
@@ -78,14 +81,15 @@
         }
     </style>
 </head>
-<body class="light-mode">
+<body>
 
 <div class="header">
     <div id="title-card">المحاسب الذكي - Le Comptable Intelligent</div>
     <div class="button-group">
         <button onclick="toggleLanguage()">تغيير اللغة</button>
         <button onclick="toggleDarkMode()">الوضع الليلي/الساطع</button>
-        <button onclick="downloadTransactionPDF()">تنزيل PDF</button>
+        <button onclick="downloadTransactions('json')">تنزيل JSON</button>
+        <button onclick="downloadTransactions('csv')">تنزيل CSV</button>
         <button onclick="showSummary()">ملخص المعاملات</button>
     </div>
 </div>
@@ -131,43 +135,45 @@
 </div>
 
 <script>
-    let transactions = [];
-    let darkMode = false;
-    let language = 'ar';
+    // Initialize data from localStorage
+    let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+    let darkMode = JSON.parse(localStorage.getItem('darkMode')) || false;
+    let language = localStorage.getItem('language') || 'ar';
+
+    // Apply initial settings
+    document.body.className = darkMode ? 'dark-mode' : 'light-mode';
+    updateLanguage();
 
     function addTransaction() {
-        const clientName = document.getElementById('clientName').value;
-        const phoneNumber = document.getElementById('phoneNumber').value;
+        const clientName = document.getElementById('clientName').value.trim();
+        const phoneNumber = document.getElementById('phoneNumber').value.trim();
         const transactionDate = document.getElementById('transactionDate').value;
         const amountPaid = parseFloat(document.getElementById('amountPaid').value);
-        const remainingBalance = document.getElementById('remainingBalance').value;
+        const remainingBalance = parseFloat(document.getElementById('remainingBalance').value);
 
-        if (!clientName || !phoneNumber || !transactionDate || isNaN(amountPaid) || !remainingBalance) {
-            alert('الرجاء ادخال جميع المعلومات لاكمال المعاملة ، شكرا !!');
+        if (!clientName || !phoneNumber || !transactionDate || isNaN(amountPaid) || isNaN(remainingBalance)) {
+            alert('الرجاء إدخال جميع المعلومات لإكمال المعاملة.');
             return;
         }
 
         const uniqueId = 'ID' + Math.random().toString(36).substr(2, 9);
-        
-        const transaction = {
-            uniqueId,
-            clientName,
-            phoneNumber,
-            transactionDate,
-            amountPaid,
-            remainingBalance
-        };
+
+        const transaction = { uniqueId, clientName, phoneNumber, transactionDate, amountPaid, remainingBalance };
 
         transactions.push(transaction);
+        saveTransactions();
         displayTransactions();
         clearFields();
         updateTotalAmount();
     }
 
+    function saveTransactions() {
+        localStorage.setItem('transactions', JSON.stringify(transactions));
+    }
+
     function displayTransactions() {
         const tbody = document.getElementById('transactionsBody');
         tbody.innerHTML = '';
-        
         transactions.forEach(transaction => {
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -192,41 +198,71 @@
 
     function toggleDarkMode() {
         darkMode = !darkMode;
+        localStorage.setItem('darkMode', JSON.stringify(darkMode));
         document.body.className = darkMode ? 'dark-mode' : 'light-mode';
     }
 
     function toggleLanguage() {
         language = language === 'ar' ? 'fr' : 'ar';
+        localStorage.setItem('language', language);
+        updateLanguage();
+    }
+
+    function updateLanguage() {
         document.getElementById('title-card').innerText = language === 'ar' ? 'المحاسب الذكي' : 'Le Comptable Intelligent';
         document.querySelectorAll('label').forEach(label => {
-            if (language === 'ar') {
-                label.innerText = label.innerText.replace('Nom du client:', 'اسم العميل:')
-                                .replace('Numéro de téléphone:', 'رقم الهاتف:')
-                                .replace('Date de transaction:', 'تاريخ المعاملة:')
-                                .replace('Montant payé:', 'المبلغ المدفوع:')
-                                .replace('Solde restant:', 'الرصيد المتبقي:');
-            } else {
-                label.innerText = label.innerText.replace('اسم العميل:', 'Nom du client:')
-                                .replace('رقم الهاتف:', 'Numéro de téléphone:')
-                                .replace('تاريخ المعاملة:', 'Date de transaction:')
-                                .replace('المبلغ المدفوع:', 'Montant payé:')
-                                .replace('الرصيد المتبقي:', 'Solde restant:');
-            }
+            const translations = {
+                'اسم العميل:': language === 'ar' ? 'اسم العميل:' : 'Nom du client:',
+                'رقم الهاتف:': language === 'ar' ? 'رقم الهاتف:' : 'Numéro de téléphone:',
+                'تاريخ المعاملة:': language === 'ar' ? 'تاريخ المعاملة:' : 'Date de transaction:',
+                'المبلغ المدفوع:': language === 'ar' ? 'المبلغ المدفوع:' : 'Montant payé:',
+                'الرصيد المتبقي:': language === 'ar' ? 'الرصيد المتبقي:' : 'Solde restant:'
+            };
+            label.innerText = translations[label.innerText] || label.innerText;
         });
     }
 
-    function downloadTransactionPDF() {
-        alert('تنزيل PDF قيد التطوير.');
+    function downloadTransactions(format) {
+        if (transactions.length === 0) {
+            alert('لا توجد معاملات لتنزيلها.');
+            return;
+        }
+
+        let data, fileName, mimeType;
+
+        if (format === 'json') {
+            data = JSON.stringify(transactions, null, 2);
+            fileName = 'transactions.json';
+            mimeType = 'application/json';
+        } else if (format === 'csv') {
+            const headers = Object.keys(transactions[0]).join(',');
+            const rows = transactions.map(t => Object.values(t).join(',')).join('\n');
+            data = `${headers}\n${rows}`;
+            fileName = 'transactions.csv';
+            mimeType = 'text/csv';
+        }
+
+        const blob = new Blob([data], { type: mimeType });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = fileName;
+        link.click();
     }
 
     function showSummary() {
-        alert('عرض ملخص المعاملات قيد التطوير.');
+        const totalTransactions = transactions.length;
+        const totalPaid = transactions.reduce((sum, t) => sum + t.amountPaid, 0);
+        alert(`إجمالي عدد المعاملات: ${totalTransactions}\nإجمالي المبالغ المدفوعة: ${totalPaid.toFixed(2)}`);
     }
 
     function updateTotalAmount() {
-        const total = transactions.reduce((sum, transaction) => sum + transaction.amountPaid, 0);
-        document.getElementById('totalAmount').innerText = `إجمالي المبالغ المدفوعة: ${total}`;
+        const total = transactions.reduce((sum, t) => sum + t.amountPaid, 0);
+        document.getElementById('totalAmount').innerText = `إجمالي المبالغ المدفوعة: ${total.toFixed(2)}`;
     }
+
+    // Initial display
+    displayTransactions();
+    updateTotalAmount();
 </script>
 
 </body>
