@@ -1,269 +1,269 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مكتبة كلية العلوم القانونية والاقتصادية</title>
+    <title>المحاسب الذكي - Le Comptable Intelligent</title>
     <style>
-        /* إعدادات عامة للصفحة */
         body {
-            margin: 0;
             font-family: Arial, sans-serif;
-            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .dark-mode {
+            background-color: #121212;
+            color: #f0f0f0;
+        }
+        .header {
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            overflow: hidden;
-            position: relative;
-            background: #3D4D55;
-        }
-
-        /* خلفية المعادلات */
-        .equation {
-            position: absolute;
-            font-size: 24px;
-            opacity: 0;
-            animation: fade 1s infinite;
-            white-space: nowrap;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        @keyframes fade {
-            0%, 100% { opacity: 0; }
-            50% { opacity: 1; }
-        }
-
-        /* إعدادات الشريط الجانبي */
-        .sidebar {
-            position: fixed;
-            top: 0;
-            right: -300px;
-            width: 250px;
-            height: 100%;
-            background-color: rgba(75, 0, 130, 0.9);
-            color: #fff;
             padding: 20px;
-            transition: right 0.3s ease;
-            z-index: 1000;
-        }
-
-        .sidebar.open {
-            right: 0;
-        }
-
-        .menu-icon {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            font-size: 30px;
+            background-color: #007bff;
             color: #fff;
-            cursor: pointer;
-            z-index: 1001;
         }
-
-        /* إعداد الأزرار */
-        .button {
-            background-color: #2B124C;
+        .button-group button {
+            padding: 10px;
+            background-color: #333;
             color: #fff;
-            padding: 15px;
-            margin: 10px 0;
             border: none;
-            border-radius: 8px;
-            width: 80%;
-            max-width: 250px;
-            font-size: 16px;
+            border-radius: 5px;
             cursor: pointer;
-            text-align: center;
             transition: background-color 0.3s;
         }
-
-        .button:hover {
-            background-color: #20212B;
+        .button-group button:hover {
+            background-color: #555;
         }
-
-        .back-button {
-            background-color: #372e27;
+        .form-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #ffffff;
+        }
+        .dark-mode .form-container {
+            background-color: #1e1e1e;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select {
+            padding: 10px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        #transactionsTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        #transactionsTable th, #transactionsTable td {
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        #transactionsTable th {
+            background-color: #007bff;
             color: #fff;
-            position: absolute;
-            top: 0;
-            left: 150px;
-            font-size: 10px;
         }
-
-        /* إعداد رأس الصفحة */
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .header h1 {
-            font-size: 45px;
-            color: #E4E6D9;
-        }
-
-        .header h2, .header h3, .header h4, .header h5, .header h6, .header h7, .header h8 {
-            color: #000;
-            font-size: 15px;
-        }
-
-        .header h8 {
-            font-size: 30px;
-            margin: 15px;
-        }
-
-        /* إعدادات تبديل اللغة */
-        .language-switch {
-            color: #fff;
+        .total-amount {
+            font-weight: bold;
+            text-align: right;
             margin-top: 10px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        /* إعدادات المطور */
-        .developer-info {
-            position: fixed;
-            bottom: 10px;
-            font-size: 10px;
-            color: #fff;
         }
     </style>
 </head>
 <body>
-    <div class="menu-icon" onclick="toggleSidebar()">☰</div>
-    <div class="sidebar" id="sidebar">
-        <h2>Réglages - الاعدادات ⚙️</h2>
-        <div class="language-switch" onclick="toggleLanguage()">Changer la langue - تغيير اللغة</div>
+
+<div class="header">
+    <div id="title-card">المحاسب الذكي - Le Comptable Intelligent</div>
+    <div class="button-group">
+        <button onclick="toggleLanguage()">تغيير اللغة</button>
+        <button onclick="toggleDarkMode()">الوضع الليلي/الساطع</button>
+        <button onclick="downloadTransactions('json')">تنزيل JSON</button>
+        <button onclick="downloadTransactions('csv')">تنزيل CSV</button>
+        <button onclick="showSummary()">ملخص المعاملات</button>
     </div>
-    <div class="header">
-        <h1>المكتبة الجامعية</h1>
-        <h2>.</h2>
-        <h3>.</h3>
-        <h4>.</h4>
-        <h5>.</h5>
-        <h6>.</h6>
-        <h7>.</h7>
+</div>
+
+<div class="form-container">
+    <div class="form-group">
+        <label for="clientName">اسم العميل:</label>
+        <input type="text" id="clientName" required>
     </div>
-    <button class="button" onclick="openSection('main')">كتب كلية العلوم القانونية والاقتصادية</button>
-    <button class="button" onclick="openSection('!!!')">كتب المدرسة العليا لعلوم الصحة</button>
-    <div>نافذة قيد الانشاء...</div>
-
-    <div class="header">
-        <h8>.</h8>
+    <div class="form-group">
+        <label for="phoneNumber">رقم الهاتف:</label>
+        <input type="tel" id="phoneNumber" required>
     </div>
-
-    <div class="developer-info">
-        ® dev: Mohamed Salem/Yacoub 
+    <div class="form-group">
+        <label for="transactionDate">تاريخ المعاملة:</label>
+        <input type="date" id="transactionDate" required>
     </div>
+    <div class="form-group">
+        <label for="amountPaid">المبلغ المدفوع:</label>
+        <input type="number" id="amountPaid" required>
+    </div>
+    <div class="form-group">
+        <label for="remainingBalance">الرصيد المتبقي:</label>
+        <input type="number" id="remainingBalance" required>
+    </div>
+    <button onclick="addTransaction()">إضافة معاملة</button>
 
-    <div id="equationContainer"></div>
+    <table id="transactionsTable">
+        <thead>
+            <tr>
+                <th>رمز التعريف</th>
+                <th>اسم العميل</th>
+                <th>رقم الهاتف</th>
+                <th>تاريخ المعاملة</th>
+                <th>المبلغ المدفوع</th>
+                <th>الرصيد المتبقي</th>
+            </tr>
+        </thead>
+        <tbody id="transactionsBody">
+        </tbody>
+    </table>
+    <div class="total-amount" id="totalAmount">إجمالي المبالغ المدفوعة: 0</div>
+</div>
 
-    <script>
-        let isArabic = true;
-        const equations = [
-            "📚 📖", "📒  📙📘", "0000000", "E = mc²", "a² + b² = c²",
-            "F = ma", "Δx * Δp ≥ ħ/2", "PV = nRT", "S = ut + ½at²", "P = m•g",
-            "a+kl/1", "justice", "ال ماه گدك ريگ لا تساف معاه ادگيگ", "من جد وجد",
-            "ومن زرع حصد", "من اراد العلى سهر الليالي", "هو العلم يعلو بالحياة سعادة",
-            "ويجعلها كالعلم محمودة العقبى"
-        ];
+<script>
+    // Initialize data from localStorage
+    let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+    let darkMode = JSON.parse(localStorage.getItem('darkMode')) || false;
+    let language = localStorage.getItem('language') || 'ar';
 
-        let index = 0;
+    // Apply initial settings
+    document.body.className = darkMode ? 'dark-mode' : 'light-mode';
+    updateLanguage();
 
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
+    function addTransaction() {
+        const clientName = document.getElementById('clientName').value.trim();
+        const phoneNumber = document.getElementById('phoneNumber').value.trim();
+        const transactionDate = document.getElementById('transactionDate').value;
+        const amountPaid = parseFloat(document.getElementById('amountPaid').value);
+        const remainingBalance = parseFloat(document.getElementById('remainingBalance').value);
+
+        if (!clientName || !phoneNumber || !transactionDate || isNaN(amountPaid) || isNaN(remainingBalance)) {
+            alert('الرجاء إدخال جميع المعلومات لإكمال المعاملة.');
+            return;
         }
 
-        function toggleLanguage() {
-            isArabic = !isArabic;
-            document.documentElement.lang = isArabic ? "ar" : "fr";
-            document.dir = isArabic ? "rtl" : "ltr";
-            document.querySelector(".language-switch").textContent = isArabic ? "Changer la langue vers le français" : "تغيير اللغة للعربية";
-            document.querySelector("h1").textContent = isArabic ? "المكتبة الجامعية" : "Bibliothèque Universitaire";
-            document.querySelector(".button").textContent = isArabic ? "كلية العلوم القانونية والاقتصادية" : "Faculté de Droit et d'Économie";
-        }
+        const uniqueId = 'ID' + Math.random().toString(36).substr(2, 9);
 
-        function openSection(section) {
-            if (section === 'main') {
-                document.body.innerHTML = `
-                    <div class="header">
-                        <button class="back-button button" onclick="location.reload()">العودة للصفحة الرئيسية - Retour</button>
-                        <h2>${isArabic ? "كلية العلوم القانونية والاقتصادية" : "Faculté de Droit et d'Économie"}</h2>
-                    </div>
-                    <button class="button" onclick="openSpecialty('الاقتصاد والتسيير')">${isArabic ? "الاقتصاد والتسيير" : "Économie et Gestion"}</button>
-                    <button class="button" onclick="openSpecialty('المالية والمحاسبة')">${isArabic ? "المالية والمحاسبة" : "Finance et Comptabilité"}</button>
-                    <button class="button" onclick="openSpecialty('البنوك والتأمين')">${isArabic ? "البنوك والتأمين" : "Banques et Assurance"}</button>
-                    <button class="button" onclick="openSpecialty('تسيير الموارد البشرية')">${isArabic ? "تسيير الموارد البشرية" : "Gestion des Ressources Humaines"}</button>
-                    <button class="button" onclick="openSpecialty('القانون')">${isArabic ? "القانون" : "Droit"}</button>
-                `;
-            }
-        }
+        const transaction = { uniqueId, clientName, phoneNumber, transactionDate, amountPaid, remainingBalance };
 
-        function openSpecialty(specialty) {
-            document.body.innerHTML = `
-                <div class="header">
-                    <button class="back-button button" onclick="openSection('main')">${isArabic ? "الرجوع" : "Retour"}</button>
-                    <h2>${specialty}</h2>
-                </div>
-                <button class="button" onclick="openLevel('${specialty}', 'L1')">L1</button>
-                <button class="button" onclick="openLevel('${specialty}', 'L2')">L2</button>
-                <button class="button" onclick="openLevel('${specialty}', 'L3')">L3</button>
+        transactions.push(transaction);
+        saveTransactions();
+        displayTransactions();
+        clearFields();
+        updateTotalAmount();
+    }
+
+    function saveTransactions() {
+        localStorage.setItem('transactions', JSON.stringify(transactions));
+    }
+
+    function displayTransactions() {
+        const tbody = document.getElementById('transactionsBody');
+        tbody.innerHTML = '';
+        transactions.forEach(transaction => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${transaction.uniqueId}</td>
+                <td>${transaction.clientName}</td>
+                <td>${transaction.phoneNumber}</td>
+                <td>${transaction.transactionDate}</td>
+                <td>${transaction.amountPaid}</td>
+                <td>${transaction.remainingBalance}</td>
             `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function clearFields() {
+        document.getElementById('clientName').value = '';
+        document.getElementById('phoneNumber').value = '';
+        document.getElementById('transactionDate').value = '';
+        document.getElementById('amountPaid').value = '';
+        document.getElementById('remainingBalance').value = '';
+    }
+
+    function toggleDarkMode() {
+        darkMode = !darkMode;
+        localStorage.setItem('darkMode', JSON.stringify(darkMode));
+        document.body.className = darkMode ? 'dark-mode' : 'light-mode';
+    }
+
+    function toggleLanguage() {
+        language = language === 'ar' ? 'fr' : 'ar';
+        localStorage.setItem('language', language);
+        updateLanguage();
+    }
+
+    function updateLanguage() {
+        document.getElementById('title-card').innerText = language === 'ar' ? 'المحاسب الذكي' : 'Le Comptable Intelligent';
+        document.querySelectorAll('label').forEach(label => {
+            const translations = {
+                'اسم العميل:': language === 'ar' ? 'اسم العميل:' : 'Nom du client:',
+                'رقم الهاتف:': language === 'ar' ? 'رقم الهاتف:' : 'Numéro de téléphone:',
+                'تاريخ المعاملة:': language === 'ar' ? 'تاريخ المعاملة:' : 'Date de transaction:',
+                'المبلغ المدفوع:': language === 'ar' ? 'المبلغ المدفوع:' : 'Montant payé:',
+                'الرصيد المتبقي:': language === 'ar' ? 'الرصيد المتبقي:' : 'Solde restant:'
+            };
+            label.innerText = translations[label.innerText] || label.innerText;
+        });
+    }
+
+    function downloadTransactions(format) {
+        if (transactions.length === 0) {
+            alert('لا توجد معاملات لتنزيلها.');
+            return;
         }
 
-        function openLevel(specialty, level) {
-            document.body.innerHTML = `
-                <div class="header">
-                    <button class="back-button button" onclick="openSpecialty('${specialty}')">${isArabic ? "الرجوع" : "Retour"}</button>
-                    <h2>${specialty} - ${level}</h2>
-                </div>
-                <button class="button" onclick="openSemester('${specialty}', '${level}', 'S1')">S1</button>
-                <button class="button" onclick="openSemester('${specialty}', '${level}', 'S2')">S2</button>
-            `;
+        let data, fileName, mimeType;
+
+        if (format === 'json') {
+            data = JSON.stringify(transactions, null, 2);
+            fileName = 'transactions.json';
+            mimeType = 'application/json';
+        } else if (format === 'csv') {
+            const headers = Object.keys(transactions[0]).join(',');
+            const rows = transactions.map(t => Object.values(t).join(',')).join('\n');
+            data = `${headers}\n${rows}`;
+            fileName = 'transactions.csv';
+            mimeType = 'text/csv';
         }
 
-        function openSemester(specialty, level, semester) {
-            let link = '';
-            // الروابط
-            if (specialty === 'الاقتصاد والتسيير') {
-                link = (level === 'L1' && semester === 'S1') ? 'https://drive.google.com/file/d/1-36P5EU7ObH3VF0FTEEpo_8UwzMSrtdn' : '';
-                link = (level === 'L1' && semester === 'S2') ? 'https://drive.google.com/file/d/1-4kio2R72Kk59Mj3yH_plepdHA0hN4or' : link;
-            } else if (specialty === 'المالية والمحاسبة') {
-                link = (level === 'L1' && semester === 'S1') ? 'https://drive.google.com/file/d/1-7rwTCkO1epFd5fYR-i4Oi88Uuwg_pGy' : '';
-                link = (level === 'L1' && semester === 'S2') ? 'https://drive.google.com/file/d/1-7rwTCkO1epFd5fYR-i4Oi88Uuwg_pGy' : link;
-            } // إضافة الروابط الأخرى هنا
+        const blob = new Blob([data], { type: mimeType });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = fileName;
+        link.click();
+    }
 
-            document.body.innerHTML = `
-                <div class="header">
-                    <button class="back-button button" onclick="openLevel('${specialty}', '${level}')">${isArabic ? "الرجوع" : "Retour"}</button>
-                    <h2>${specialty} - ${level} - ${semester}</h2>
-                </div>
-                <a class="button" href="${link}" target="_blank">${isArabic ? "تحميل الكتب" : "Télécharger les livres"}</a>
-            `;
-        }
+    function showSummary() {
+        const totalTransactions = transactions.length;
+        const totalPaid = transactions.reduce((sum, t) => sum + t.amountPaid, 0);
+        alert(`إجمالي عدد المعاملات: ${totalTransactions}\nإجمالي المبالغ المدفوعة: ${totalPaid.toFixed(2)}`);
+    }
 
-        function displayEquations() {
-            const equationContainer = document.getElementById('equationContainer');
-            const equationElement = document.createElement('div');
-            equationElement.className = 'equation';
-            equationContainer.appendChild(equationElement);
+    function updateTotalAmount() {
+        const total = transactions.reduce((sum, t) => sum + t.amountPaid, 0);
+        document.getElementById('totalAmount').innerText = `إجمالي المبالغ المدفوعة: ${total.toFixed(2)}`;
+    }
 
-            setInterval(() => {
-                equationElement.textContent = equations[index];
-                equationElement.style.left = Math.random() * window.innerWidth + 'px';
-                equationElement.style.top = Math.random() * window.innerHeight + 'px';
-                equationElement.style.opacity = 1;
+    // Initial display
+    displayTransactions();
+    updateTotalAmount();
+</script>
 
-                setTimeout(() => {
-                    equationElement.style.opacity = 0;
-                }, 1000);
-
-                index = (index + 1) % equations.length;
-            }, 2000);
-        }
-
-        displayEquations();
-    </script>
 </body>
 </html>
