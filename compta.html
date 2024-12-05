@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المحاسب الذكي - Le Comptable Intelligent</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .dark-mode {
+            background-color: #121212;
+            color: #f0f0f0;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #007bff;
+            color: #fff;
+        }
+        .button-group button {
+            padding: 10px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #ffffff;
+        }
+        .dark-mode .form-container {
+            background-color: #1e1e1e;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select {
+            padding: 10px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        #transactionsTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        #transactionsTable th, #transactionsTable td {
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        #transactionsTable th {
+            background-color: #007bff;
+            color: #fff;
+        }
+        .total-amount {
+            font-weight: bold;
+            text-align: right;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body class="light-mode">
+
+<div class="header">
+    <div id="title-card">المحاسب الذكي - Le Comptable Intelligent</div>
+    <div class="button-group">
+        <button onclick="toggleLanguage()">تغيير اللغة</button>
+        <button onclick="toggleDarkMode()">الوضع الليلي/الساطع</button>
+        <button onclick="downloadTransactionPDF()">تنزيل PDF</button>
+        <button onclick="showSummary()">ملخص المعاملات</button>
+    </div>
+</div>
+
+<div class="form-container">
+    <div class="form-group">
+        <label for="clientName">اسم العميل:</label>
+        <input type="text" id="clientName" required>
+    </div>
+    <div class="form-group">
+        <label for="phoneNumber">رقم الهاتف:</label>
+        <input type="tel" id="phoneNumber" required>
+    </div>
+    <div class="form-group">
+        <label for="transactionDate">تاريخ المعاملة:</label>
+        <input type="date" id="transactionDate" required>
+    </div>
+    <div class="form-group">
+        <label for="amountPaid">المبلغ المدفوع:</label>
+        <input type="number" id="amountPaid" required>
+    </div>
+    <div class="form-group">
+        <label for="remainingBalance">الرصيد المتبقي:</label>
+        <input type="number" id="remainingBalance" required>
+    </div>
+    <button onclick="addTransaction()">إضافة معاملة</button>
+
+    <table id="transactionsTable">
+        <thead>
+            <tr>
+                <th>رمز التعريف</th>
+                <th>اسم العميل</th>
+                <th>رقم الهاتف</th>
+                <th>تاريخ المعاملة</th>
+                <th>المبلغ المدفوع</th>
+                <th>الرصيد المتبقي</th>
+            </tr>
+        </thead>
+        <tbody id="transactionsBody">
+        </tbody>
+    </table>
+    <div class="total-amount" id="totalAmount">إجمالي المبالغ المدفوعة: 0</div>
+</div>
+
+<script>
+    let transactions = [];
+    let darkMode = false;
+    let language = 'ar';
+
+    function addTransaction() {
+        const clientName = document.getElementById('clientName').value;
+        const phoneNumber = document.getElementById('phoneNumber').value;
+        const transactionDate = document.getElementById('transactionDate').value;
+        const amountPaid = parseFloat(document.getElementById('amountPaid').value);
+        const remainingBalance = document.getElementById('remainingBalance').value;
+
+        if (!clientName || !phoneNumber || !transactionDate || isNaN(amountPaid) || !remainingBalance) {
+            alert('الرجاء ادخال جميع المعلومات لاكمال المعاملة ، شكرا !!');
+            return;
+        }
+
+        const uniqueId = 'ID' + Math.random().toString(36).substr(2, 9);
+        
+        const transaction = {
+            uniqueId,
+            clientName,
+            phoneNumber,
+            transactionDate,
+            amountPaid,
+            remainingBalance
+        };
+
+        transactions.push(transaction);
+        displayTransactions();
+        clearFields();
+        updateTotalAmount();
+    }
+
+    function displayTransactions() {
+        const tbody = document.getElementById('transactionsBody');
+        tbody.innerHTML = '';
+        
+        transactions.forEach(transaction => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${transaction.uniqueId}</td>
+                <td>${transaction.clientName}</td>
+                <td>${transaction.phoneNumber}</td>
+                <td>${transaction.transactionDate}</td>
+                <td>${transaction.amountPaid}</td>
+                <td>${transaction.remainingBalance}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function clearFields() {
+        document.getElementById('clientName').value = '';
+        document.getElementById('phoneNumber').value = '';
+        document.getElementById('transactionDate').value = '';
+        document.getElementById('amountPaid').value = '';
+        document.getElementById('remainingBalance').value = '';
+    }
+
+    function toggleDarkMode() {
+        darkMode = !darkMode;
+        document.body.className = darkMode ? 'dark-mode' : 'light-mode';
+    }
+
+    function toggleLanguage() {
+        language = language === 'ar' ? 'fr' : 'ar';
+        document.getElementById('title-card').innerText = language === 'ar' ? 'المحاسب الذكي' : 'Le Comptable Intelligent';
+        document.querySelectorAll('label').forEach(label => {
+            if (language === 'ar') {
+                label.innerText = label.innerText.replace('Nom du client:', 'اسم العميل:')
+                                .replace('Numéro de téléphone:', 'رقم الهاتف:')
+                                .replace('Date de transaction:', 'تاريخ المعاملة:')
+                                .replace('Montant payé:', 'المبلغ المدفوع:')
+                                .replace('Solde restant:', 'الرصيد المتبقي:');
+            } else {
+                label.innerText = label.innerText.replace('اسم العميل:', 'Nom du client:')
+                                .replace('رقم الهاتف:', 'Numéro de téléphone:')
+                                .replace('تاريخ المعاملة:', 'Date de transaction:')
+                                .replace('المبلغ المدفوع:', 'Montant payé:')
+                                .replace('الرصيد المتبقي:', 'Solde restant:');
+            }
+        });
+    }
+
+    function downloadTransactionPDF() {
+        alert('تنزيل PDF قيد التطوير.');
+    }
+
+    function showSummary() {
+        alert('عرض ملخص المعاملات قيد التطوير.');
+    }
+
+    function updateTotalAmount() {
+        const total = transactions.reduce((sum, transaction) => sum + transaction.amountPaid, 0);
+        document.getElementById('totalAmount').innerText = `إجمالي المبالغ المدفوعة: ${total}`;
+    }
+</script>
+
+</body>
+</html>
