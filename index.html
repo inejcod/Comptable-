@@ -281,14 +281,14 @@
 
         transactions.forEach(transaction => {
             const transactionInfo = `
-                <p><strong>code Client:</strong> ${transaction.uniqueId}</p>
-                <p><strong>Nom du Client:</strong> ${transaction.clientName}</p>
-                <p><strong>Numéro de Téléphone:</strong> ${transaction.phoneNumber}</p>
+                <p><strong>code Client:</strong> ${transaction.code client}</p>
+                <p><strong>Nom du Client:</strong> ${transaction.clientnom}</p>
+                <p><strong>Numéro de Téléphone:</strong> ${transaction.N°telephone}</p>
                 <p><strong>Date:</strong> ${transaction.transactionDate}</p>
-                <p><strong>Prix de l'Article:</strong> ${transaction.itemPrice.toFixed(2)}</p>
-                <p><strong>Montant Payé:</strong> ${transaction.amountPaid.toFixed(2)}</p>
-                <p><strong>Solde Restant:</strong> ${transaction.remainingBalance.toFixed(2)}</p>
-                <p><strong>Date d'Échéance:</strong> ${transaction.dueDate}</p>
+                <p><strong>Prix de l'Article:</strong> ${transaction.prix.article.toFixed(2)}</p>
+                <p><strong>Montant Payé:</strong> ${transaction.montantpayé.toFixed(2)}</p>
+                <p><strong>Solde Restant:</strong> ${transaction.solde.restant.toFixed(2)}</p>
+                <p><strong>Date d'Échéance:</strong> ${transaction.datedecheance}</p>
                 <p><strong>Statut:</strong> ${transaction.status}</p>
                 <hr>
             `;
